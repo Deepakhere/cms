@@ -1,0 +1,249 @@
+.navbar {
+    left: 82px;
+    max-width: calc(100% - 82px);
+    width: 100%;
+    height: 80px;
+    position: fixed;
+    top: 0;
+    padding: 24px, 32px, 24px, 32px;
+    border-bottom: 2px solid #E1E1E8;
+    z-index: 1000;
+    display: flex;
+}
+
+.nav-btn {
+    margin-right: 20px;
+    border: none;
+    width: 84px;
+    height: 42px;
+    /* padding:6px; */
+    border-radius: 4px;
+}
+
+.nav-title {
+    font-family: SF Pro;
+    margin-left: 20px;
+}
+
+.body-container {
+    margin-top: 80px;
+    margin-left: 82px;
+    padding: 0 20px;
+    width: 1180px;
+    height: 698px;
+    top: 40px;
+    position: absolute;
+}
+
+.main-body,
+.editor-body {
+    margin-top: 10px;
+}
+
+.rightside-bar {
+    position: fixed;
+    top: 82px;
+    right: 0;
+    width: 450px;
+    height: 100%;
+    padding: 20px;
+    border-left: 2px solid #efefef;
+    overflow-y: auto;
+    z-index: 100;
+}
+
+.rightside-bar h2 {
+    font-size: 20px;
+    margin-bottom: 20px;
+}
+
+.rightside-bar p {
+    font-size: 16px;
+    line-height: 1.5;
+    margin-bottom: 15px;
+}
+
+.url::before {
+    content: "* ";
+    color: #DA0128;
+}
+
+.attachment-container {
+    width: 480px;
+}
+
+.attachment-field {
+    border: 1px solid #E1E1E8;
+    width: 480px;
+    height: 248px;
+    border-radius: 4px;
+
+}
+
+.file-container {
+    width: 480px;
+    margin-bottom: 10px;
+    padding: 10px 10px 0 10px;
+}
+
+.choose-btn {
+    border: none;
+    padding: 10px;
+}
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-top {
+    background-color: #fff;
+    border-radius: 8px;
+    width: 480px;
+    height: 312px;
+}
+
+.close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    cursor: pointer;
+    color: #efefef;
+    font-size: 24px;
+
+}
+
+.modal-content {
+    width: 480px;
+    background-color: #111024;
+    padding: 16px;
+}
+
+.modal-content h2 {
+    color: #ffffff;
+    font-family: SF Pro;
+    font-size: 20px;
+    font-weight: 590;
+    line-height: 24px;
+    letter-spacing: 0em;
+    text-align: left;
+    height: 24px;
+
+}
+
+.input-field {
+    width: 432px;
+    height: 34px;
+    padding: 8px 12px;
+    border: 1px solid #D1D1DB;
+    border-radius: 5px;
+    outline: none;
+    text-align: center;
+    margin-left: 22px;
+}
+
+.publish-btn {
+    padding: 6px 12px;
+    background-color: #059669;
+    color: #D1D1DB;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    border-radius: 4;
+
+}
+
+.cancel-btn {
+    padding: 5px 12px;
+    background-color: #fff;
+    color: #000;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    border: 1px solid #000;
+    border-radius: 4;
+    margin-right: 10px;
+}
+
+.buttons {
+    float: right;
+    margin: 22px;
+}
+
+.page-title {
+    font-family: SF Pro;
+    font-size: 24px;
+    font-Weight: 700;
+    line-height: 24px;
+    letter-spacing: 0.02em;
+    text-align: left;
+    display: flex;
+}
+
+.page-title p {
+    padding-left: 5px;
+    margin: auto;
+}
+
+.page-btn .add-btn {
+    width: 116px;
+    height: 32px;
+    padding: 7px, 12px, 7px, 12px;
+    border-radius: 4px;
+    border: none;
+    gap: 6px;
+    background: #4F46E5;
+    color: #FFFFFF;
+    margin-right: 12px;
+}
+
+.table-container {
+    margin-top: 80px;
+    margin-left: 82px;
+    padding: 0 20px;
+    width: calc(100% - 82px);
+    height: 698px;
+    top: 40px;
+    position: absolute;
+}
+/* @media only screen and (max-width: 600px) {
+    .body-container {
+        width: 45%;  
+    }
+    .attachment-field{
+        width: 100%;
+    }
+} */
+
+@media only screen and (min-width: 401px) and (max-width: 1024px) {
+    .body-container {
+        width: 45%;
+    }
+    .attachment-field{
+        width: 82%;
+    }
+}
+@media only screen and (max-width: 601px) and (min-width: 1024px) {
+    .body-container {
+        width: 5%;
+    }
+    .attachment-field{
+        width: 82%;
+    }
+}
+.customContainer {
+    margin-top: 80px;
+    margin-left: 82px;
+    padding: 0 20px;
+    width: calc(100% - 82px);
+    height: 698px;
+    top: 80px;
+    position: absolute;
+}
