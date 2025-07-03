@@ -1,7 +1,7 @@
 const generateHTMLContent = (formData) => {
-    const { title, subtext, bodyContent, showAuthor, files } = formData;
+  const { title, subtext, bodyContent, showAuthor, files } = formData;
 
-    const htmlTemplate = `
+  const htmlTemplate = `
         <!DOCTYPE html>
         <html lang="en">
         <head>
@@ -21,6 +21,6 @@ const generateHTMLContent = (formData) => {
         </html>
     `;
 
-    return htmlTemplate;
+  return htmlTemplate;
 };
 export default generateHTMLContent;
