@@ -34,9 +34,13 @@ app.use(express.json());
 
 app.use(
   cors({
-    origin: ["https://pagebuilderhere.netlify.app/"],
-    methods: ["POST", "GET", "DELETE", "PUT"],
+    origin:
+      process.env.NODE_ENV === "development"
+        ? true
+        : ["https://pagebuilderhere.netlify.app"],
+    methods: ["POST", "GET", "DELETE", "PUT", "OPTIONS"],
     credentials: true,
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
   })
 );
 
@@ -49,8 +53,10 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: false,
+      secure: process.env.NODE_ENV === "production", // true for HTTPS in production
+      httpOnly: true,
       maxAge: 1000 * 60 * 60 * 24,
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax", // 'none' for cross-site cookies in production
     },
   })
 );
@@ -117,8 +123,9 @@ cron.schedule("0 8 * * *", async () => {
 
 // Test route
 app.get("/", (req, res) => {
-  res.json({ message: "Hello from server side!" });
+  res.json("Hello! I am server!");
 });
+
 app.listen(PORT, () => {
   console.log(`App is listening on port ${PORT}!`);
 });
