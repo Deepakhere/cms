@@ -9,7 +9,7 @@ services:
 
     buildCommand: npm install
 
-    startCommand: npm run dev
+    startCommand: npm start
 
     branch: main # Adjust if your default branch is different
 
