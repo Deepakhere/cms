@@ -10,10 +10,7 @@ const pageSaveData = (req, res) => {
 
     cloudinary.uploader
       .upload(filePath, async (err, result) => {
-        console.log(req.session);
         const userData = req.session.userData;
-        console.log(userData);
-        console.log(userData._id);
 
         RegisterModel.findOne({ _id: userData._id }).then((user) => {
           console.log(user._id);
