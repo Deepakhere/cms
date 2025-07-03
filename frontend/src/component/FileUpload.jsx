@@ -1,11 +1,11 @@
-import React, { useState } from 'react'
-import axios from 'axios'
+import React, { useState } from "react";
+import axios from "axios";
 function FileUpload() {
   const [file, setFile] = useState();
 
   const handleFile = (e) => {
-    setFile(e.target.files[0])
-  }
+    setFile(e.target.files[0]);
+  };
 
   axios.defaults.withCredentials = true;
 
@@ -13,22 +13,21 @@ function FileUpload() {
     // e.preventDefault();
 
     const formdata = new FormData();
-    formdata.append('image', file);
+    formdata.append("image", file);
 
-    axios.post('http://localhost:4000/homePageData', formdata)
-      .then(res => console.log(res))
-      .catch(err => console.log(err));
-  }
+    axios
+      .post("http://localhost:4000/homePageData", formdata)
+      .then((res) => console.log(res))
+      .catch((err) => console.log(err));
+  };
   return (
-    <div className='container'>
-      <input type="file" onChange={handleFile} /> 
+    <div className="container">
+      <input type="file" onChange={handleFile} />
       <button onClick={handleUpload}>Upload</button>
     </div>
-  )
+  );
 }
-export default FileUpload
-
-
+export default FileUpload;
 
 // upload.single('image')(req, res, (err) => {
 //   if (err) {
