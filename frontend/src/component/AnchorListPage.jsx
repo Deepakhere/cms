@@ -9,7 +9,7 @@ function AnchorListPage() {
 
   useEffect(() => {
     axios
-      .get("http://localhost:4000/bloglist")
+      .get("https://pagebuilder-zjf0.onrender.com")
       .then((res) => {
         setAnchorData(res.data);
       })
@@ -67,7 +67,7 @@ function AnchorListPage() {
                     <h5 className="card-title">URL Name: {anchor.URL}</h5>
                     <Link
                       style={{ textDecoration: "none" }}
-                      to={`http://localhost:4000/generatepage/${anchor.URL}`}
+                      to={`https://pagebuilder-zjf0.onrender.com/generatepage/${anchor.URL}`}
                     >
                       <p className="card-text">View Page</p>
                     </Link>

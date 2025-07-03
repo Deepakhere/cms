@@ -16,7 +16,7 @@ function FileUpload() {
     formdata.append("image", file);
 
     axios
-      .post("http://localhost:4000/homePageData", formdata)
+      .post("https://pagebuilder-zjf0.onrender.com/homePageData", formdata)
       .then((res) => console.log(res))
       .catch((err) => console.log(err));
   };

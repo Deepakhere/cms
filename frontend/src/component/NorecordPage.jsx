@@ -10,7 +10,7 @@ function NorecordPage() {
   axios.defaults.withCredentials = true;
   useEffect(() => {
     axios
-      .get("http://localhost:4000/isAuthenticate")
+      .get("https://pagebuilder-zjf0.onrender.com/isAuthenticate")
       .then((res) => {
         if (res.data.valid) {
           console.log("Entered Successfully");

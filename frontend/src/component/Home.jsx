@@ -53,7 +53,7 @@ function Home() {
   const navigate = useNavigate();
   useEffect(() => {
     axios
-      .get("http://localhost:4000/isAuthenticate")
+      .get("https://pagebuilder-zjf0.onrender.com/isAuthenticate")
       .then((res) => {
         if (res.data.valid) {
           console.log("Entered Successfully");
@@ -73,7 +73,7 @@ function Home() {
 
     event.preventDefault();
     axios
-      .post("http://localhost:4000/homepagedata", {
+      .post("https://pagebuilder-zjf0.onrender.com/homepagedata", {
         title,
         subtext,
         url,
@@ -92,7 +92,7 @@ function Home() {
 
   useEffect(() => {
     axios
-      .get("http://localhost:4000/gethomedata")
+      .get("https://pagebuilder-zjf0.onrender.com/gethomedata")
       .then((res) => {
         if (res.data) {
           setShowAuthor(res.data[0].createdBy);
@@ -116,7 +116,7 @@ function Home() {
     console.log(file);
 
     axios
-      .post("http://localhost:4000/pagesavedata", formdata)
+      .post("https://pagebuilder-zjf0.onrender.com/pagesavedata", formdata)
       .then((response) => {
         console.log(response.data);
       })

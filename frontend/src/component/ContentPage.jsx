@@ -16,7 +16,7 @@ function ContentPage() {
   axios.defaults.withCredentials = true;
   useEffect(() => {
     axios
-      .get("http://localhost:4000/isAuthenticate")
+      .get("https://pagebuilder-zjf0.onrender.com/isAuthenticate")
       .then((res) => {
         if (res.data.valid) {
           console.log("Entered Successfully");
@@ -31,7 +31,7 @@ function ContentPage() {
 
   useEffect(() => {
     axios
-      .get("http://localhost:4000/gethomedata")
+      .get("https://pagebuilder-zjf0.onrender.com/gethomedata")
       .then((res) => {
         console.log(res.data);
         if (res.data.length === 0) {
@@ -67,7 +67,7 @@ function ContentPage() {
   const handleDelete = (id) => {
     console.log(id);
     axios
-      .delete(`http://localhost:4000/deletedata/${id}`)
+      .delete(`https://pagebuilder-zjf0.onrender.com/deletedata/${id}`)
       .then((res) => {
         console.log(res.data);
         setReactTable(reacttable.filter((data) => data._id !== id));

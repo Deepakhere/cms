@@ -14,7 +14,7 @@ const Signup = () => {
   const handleSubmit = (event) => {
     event.preventDefault();
     axios
-      .post("http://localhost:4000/register", { username, email, password })
+      .post("https://pagebuilder-zjf0.onrender.com/register", { username, email, password })
       .then((result) => {
         console.log(result);
         toast.success(result.data);

@@ -16,7 +16,7 @@ const Login = () => {
   const handleSubmit = (event) => {
     event.preventDefault();
     axios
-      .post("http://localhost:4000/login", { email, password })
+      .post("https://pagebuilder-zjf0.onrender.com/login", { email, password })
       .then((result) => {
         if (result.data === "Success") {
           navigate("/contentpage");
