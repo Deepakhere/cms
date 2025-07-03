@@ -34,7 +34,7 @@ app.use(express.json());
 
 app.use(
   cors({
-    origin: ["*"],
+    origin: ["https://pagebuilderhere.netlify.app/"],
     methods: ["POST", "GET", "DELETE", "PUT"],
     credentials: true,
   })
@@ -95,11 +95,9 @@ cron.schedule("0 8 * * *", async () => {
       : `0${currentDate.getDate()}`;
 
   let date = `${year}-${month}-${day}`;
-  console.log(date);
 
   try {
     const users = await homePageDataSchema.find({ publishDate: date });
-    console.log(users);
 
     users.forEach(async (user) => {
       const mailOptions = {
@@ -118,7 +116,7 @@ cron.schedule("0 8 * * *", async () => {
 });
 
 // Test route
-app.get("/api", (req, res) => {
+app.get("/", (req, res) => {
   res.json({ message: "Hello from server side!" });
 });
 app.listen(PORT, () => {
