@@ -18,10 +18,13 @@ junit.xml
 
 # misc
 .DS_Store
-.env.development
-.env.dev
-.env.production
-.env.staging
+
+# environment variables
+.env.local
+.env.*.local
+
+# Keep example files but ignore actual environment files
+# .env.development and .env.production are committed for team consistency
 
 npm-debug.log*
 yarn-debug.log*

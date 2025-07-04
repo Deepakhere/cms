@@ -19,12 +19,14 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
+    "start": "REACT_APP_ENVIRONMENT=production react-scripts start",
+    "dev": "REACT_APP_ENVIRONMENT=development react-scripts start",
+    "build": "REACT_APP_ENVIRONMENT=production react-scripts build",
+    "build:dev": "REACT_APP_ENVIRONMENT=development react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
-  "proxy": "https://pagebuilder-zjf0.onrender.com",
+  "proxy": "http://localhost:4000",
   "eslintConfig": {
     "extends": [
       "react-app",

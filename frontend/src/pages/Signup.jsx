@@ -1,39 +1,34 @@
-import React from "react";
+import React, { useState } from "react";
 import "./assests/signup.css";
 import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
-import { useState } from "react";
-import axios from "axios";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
+import apiService from "../services/api";
 
-const Login = () => {
+const Signup = () => {
+  const [username, setUsername] = useState();
   const [email, setEmail] = useState();
   const [password, setPassword] = useState();
-  const navigate = useNavigate();
-
-  axios.defaults.withCredentials = true;
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    axios
-      .post("https://pagebuilder-zjf0.onrender.com/login", { email, password })
+    apiService.auth
+      .register({ username, email, password })
       .then((result) => {
-        if (result.data === "Success") {
-          navigate("/contentpage");
-          toast.success("Login successful!", { position: "top-center" });
-        } else {
-          toast.warning(result.data);
-        }
+        console.log(result);
+        toast.success(result.data);
+        window.location.href = "/login";
       })
       .catch((err) => {
         console.log(err);
-        toast.error(err);
+        toast.error("Registration failed. Please try again.");
       });
   };
 
   return (
-    <div className="register-container mb-5">
-      <div className="form-container" style={{ height: "600" }}>
+    <div className="register-container">
+      <div className="form-container">
         <div className="logo-text">
           <svg
             width="84"
@@ -62,16 +57,24 @@ const Login = () => {
         </div>
 
         <form onSubmit={handleSubmit}>
-          <h3 className="register my-0">Welcome</h3>
-          <p className="description">Login to your account.</p>
-
+          <h3 className="register">Register</h3>
           <div className="form-group">
-            <label htmlFor="email">Username or email address</label>
+            <label htmlFor="Uname">Username</label>
+            <input
+              type="text"
+              className="form-control contentclass"
+              placeholder="Enter your full name"
+              required
+              onChange={(e) => setUsername(e.target.value)}
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="email">Email address</label>
             <input
               type="email"
               className="form-control contentclass"
               id="email"
-              placeholder="Enter your username or email address"
+              placeholder="Enter your email address"
               required
               onChange={(e) => setEmail(e.target.value)}
             />
@@ -83,6 +86,7 @@ const Login = () => {
               className="form-control contentclass"
               id="password"
               placeholder="Password"
+              required
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>
@@ -93,25 +97,30 @@ const Login = () => {
               id="exampleCheck1"
             />
             <label class="form-check-label" for="exampleCheck1">
-              Remember me
+              Subscribe to our newsletter
             </label>
           </div>
-          <button type="submit" className="btn">
-            Login
-          </button>
-          <p className="description mt-4">
-            If you don't register please
-            <span>
-              {" "}
-              <Link to="/signup">Signup</Link>
-            </span>
+          <p className="description">
+            Your personal data will be used to support your experience
+            throughout this website, to manage access to your account, and for
+            other purposes described in our <Link to="">privacy policy.</Link>
           </p>
+
+          {/* <Link to="/"> */}
+          <button type="submit" className="btn">
+            Register
+          </button>
+          {/* </Link> */}
+
+          <Link to="/login">
+            <button type="button" className="btn">
+              Login
+            </button>
+          </Link>
         </form>
       </div>
     </div>
   );
 };
 
-export default Login;
-
-// mongodb+srv://deepakgupta:itsmemongo@cluster0.awxlumf.mongodb.net/
+export default Signup;

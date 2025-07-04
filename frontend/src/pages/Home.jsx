@@ -1,15 +1,16 @@
-import React from "react";
-import Sidepanel from "./Sidepanel";
-import { useState, useEffect } from "react";
-
-import JoditEditor from "jodit-react";
-import { useRef } from "react";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
-
+import React, { useRef } from "react";
 import { toast } from "react-toastify";
 
+import Sidepanel from "./Sidepanel";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import JoditEditor from "jodit-react";
+
+import apiService from "../services/api";
+
 function Home() {
+  const navigate = useNavigate();
+
   // const [selectedFile, setSelectedFile] = useState();
   const [showModal, setShowModal] = useState(false);
 
@@ -49,31 +50,14 @@ function Home() {
     setShowModal(false);
   };
 
-  axios.defaults.withCredentials = true;
-  const navigate = useNavigate();
-  useEffect(() => {
-    axios
-      .get("https://pagebuilder-zjf0.onrender.com/isAuthenticate")
-      .then((res) => {
-        if (res.data.valid) {
-          console.log("Entered Successfully");
-        } else {
-          navigate("/login");
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  });
-
   const handlePublishBtn = (event) => {
     console.log("inside");
     setShowModal(false);
-    toast.success("Data Saved SuccessFully");
+    toast.success("Data Saved Successfully");
 
     event.preventDefault();
-    axios
-      .post("https://pagebuilder-zjf0.onrender.com/homepagedata", {
+    apiService.pages
+      .create({
         title,
         subtext,
         url,
@@ -87,12 +71,13 @@ function Home() {
       })
       .catch((err) => {
         console.log(err);
+        toast.error("Failed to save data. Please try again.");
       });
   };
 
   useEffect(() => {
-    axios
-      .get("https://pagebuilder-zjf0.onrender.com/gethomedata")
+    apiService.pages
+      .getAll()
       .then((res) => {
         if (res.data) {
           setShowAuthor(res.data[0].createdBy);
@@ -113,16 +98,20 @@ function Home() {
     formdata.append("showAuthor", showAuthor);
     formdata.append("url", url);
 
-    console.log(file);
-
-    axios
-      .post("https://pagebuilder-zjf0.onrender.com/pagesavedata", formdata)
+    apiService.pages
+      .save(formdata)
       .then((response) => {
         console.log(response.data);
+        toast.success("Page saved successfully!");
       })
       .catch((error) => {
         console.error(error);
+        toast.error("Failed to save page. Please try again.");
       });
+  };
+
+  const onCancel = () => {
+    navigate("/contentpage");
   };
 
   return (
@@ -164,6 +153,7 @@ function Home() {
               color: "#000",
               border: "2px solid #D1D1DB",
             }}
+            onClick={onCancel}
           >
             Cancel
           </button>

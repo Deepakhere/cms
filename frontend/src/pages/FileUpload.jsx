@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import axios from "axios";
+import apiService from "../services/api";
 function FileUpload() {
   const [file, setFile] = useState();
 
@@ -7,16 +7,12 @@ function FileUpload() {
     setFile(e.target.files[0]);
   };
 
-  axios.defaults.withCredentials = true;
-
-  const handleUpload = (e) => {
-    // e.preventDefault();
-
+  const handleUpload = () => {
     const formdata = new FormData();
     formdata.append("image", file);
 
-    axios
-      .post("https://pagebuilder-zjf0.onrender.com/homePageData", formdata)
+    apiService.files
+      .upload(formdata)
       .then((res) => console.log(res))
       .catch((err) => console.log(err));
   };

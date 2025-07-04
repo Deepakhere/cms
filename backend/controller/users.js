@@ -34,15 +34,28 @@ const login = (req, res) => {
       if (user.password === password) {
         req.session.userData = user;
 
-        console.log(req.session.userData);
+        // Save session explicitly
+        req.session.save((err) => {
+          if (err) {
+            console.error("Session save error:", err);
+            return res.status(500).json("Session save failed");
+          }
 
-        res.json("Success");
+          console.log("Session saved successfully");
+          console.log("Session ID:", req.sessionID);
+          console.log("User data in session:", req.session.userData);
+
+          res.json("Success");
+        });
       } else {
         res.json("Password Incorrect");
       }
     } else {
       res.json("User not found");
     }
+  }).catch((err) => {
+    console.error("Database error:", err);
+    res.status(500).json("Database error");
   });
 };
 export { register, login };

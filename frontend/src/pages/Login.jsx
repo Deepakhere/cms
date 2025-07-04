@@ -1,33 +1,42 @@
-import React, { useState } from "react";
+import React from "react";
 import "./assests/signup.css";
 import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 
-import { Link } from "react-router-dom";
-import axios from "axios";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
-const Signup = () => {
-  const [username, setUsername] = useState();
+const Login = () => {
   const [email, setEmail] = useState();
   const [password, setPassword] = useState();
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
+  const { login } = useAuth();
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    axios
-      .post("https://pagebuilder-zjf0.onrender.com/register", { username, email, password })
-      .then((result) => {
-        console.log(result);
-        toast.success(result.data);
-        window.location.href = "/login";
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    setIsLoading(true);
+
+    try {
+      const result = await login(email, password);
+
+      if (result.success) {
+        navigate("/contentpage");
+        toast.success("Login successful!", { position: "top-center" });
+      } else {
+        toast.warning(result.message || "Login failed");
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      toast.error("Login failed. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
-    <div className="register-container">
-      <div className="form-container">
+    <div className="register-container mb-5">
+      <div className="form-container" style={{ height: "600" }}>
         <div className="logo-text">
           <svg
             width="84"
@@ -56,24 +65,16 @@ const Signup = () => {
         </div>
 
         <form onSubmit={handleSubmit}>
-          <h3 className="register">Register</h3>
+          <h3 className="register my-0">Welcome</h3>
+          <p className="description">Login to your account.</p>
+
           <div className="form-group">
-            <label htmlFor="Uname">Username</label>
-            <input
-              type="text"
-              className="form-control contentclass"
-              placeholder="Enter your full name"
-              required
-              onChange={(e) => setUsername(e.target.value)}
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="email">Email address</label>
+            <label htmlFor="email">Username or email address</label>
             <input
               type="email"
               className="form-control contentclass"
               id="email"
-              placeholder="Enter your email address"
+              placeholder="Enter your username or email address"
               required
               onChange={(e) => setEmail(e.target.value)}
             />
@@ -85,7 +86,6 @@ const Signup = () => {
               className="form-control contentclass"
               id="password"
               placeholder="Password"
-              required
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>
@@ -96,30 +96,25 @@ const Signup = () => {
               id="exampleCheck1"
             />
             <label class="form-check-label" for="exampleCheck1">
-              Subscribe to our newsletter
+              Remember me
             </label>
           </div>
-          <p className="description">
-            Your personal data will be used to support your experience
-            throughout this website, to manage access to your account, and for
-            other purposes described in our <Link to="">privacy policy.</Link>
-          </p>
-
-          {/* <Link to="/"> */}
-          <button type="submit" className="btn">
-            Register
+          <button type="submit" className="btn" disabled={isLoading}>
+            {isLoading ? "Logging in..." : "Login"}
           </button>
-          {/* </Link> */}
-
-          <Link to="/login">
-            <button type="button" className="btn">
-              Login
-            </button>
-          </Link>
+          <p className="description mt-4">
+            If you don't register please
+            <span>
+              {" "}
+              <Link to="/signup">Signup</Link>
+            </span>
+          </p>
         </form>
       </div>
     </div>
   );
 };
 
-export default Signup;
+export default Login;
+
+// mongodb+srv://deepakgupta:itsmemongo@cluster0.awxlumf.mongodb.net/

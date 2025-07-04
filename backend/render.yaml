@@ -19,13 +19,13 @@ services:
 
     envVars:
       - key: NODE_ENV
-
         value: production
 
       - key: MONGO
-
         value: "mongodb+srv://deepakgupta:mongodbpaasword@cluster0.xnwuo.mongodb.net/"
 
       - key: PORT
-
         value: 4000 # Ensure this matches the port your app listens on
+
+      - key: SESSION_SECRET
+        value: "your-super-secure-session-secret-key-change-this-to-random-string"

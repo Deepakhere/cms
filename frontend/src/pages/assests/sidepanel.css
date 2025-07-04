@@ -19,9 +19,10 @@
 .sidebar-logo {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: flex-start;
   color: #4f46e5;
   height: 100vh;
+  position: relative;
 }
 
 .body-frame {
@@ -118,4 +119,97 @@
   .frame2 {
     width: 350px;
   }
+}
+
+/* Logout section styles */
+.logout-section {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+}
+
+/* Logout button styles */
+.logout-btn {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.logout-btn:focus {
+  outline: none !important;
+  box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.25) !important;
+}
+
+.logout-btn:hover {
+  transform: scale(1.05);
+}
+
+/* Navigation Layout */
+.navigation {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  padding: 20px 0;
+}
+
+.top-navigation {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-items: center;
+}
+
+.bottom-navigation {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-items: center;
+}
+
+/* Active navigation states */
+.svg-group.active {
+  background-color: rgba(79, 70, 229, 0.1);
+  border-radius: 8px;
+  padding: 8px;
+  transition: all 0.3s ease;
+}
+
+.svg-group {
+  padding: 12px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.svg-group:hover {
+  background-color: rgba(79, 70, 229, 0.05);
+}
+
+.svg-group button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+}
+
+.svg-group a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
 }

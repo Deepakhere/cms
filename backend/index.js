@@ -30,14 +30,35 @@ dotenv.config();
 
 const PORT = process.env.PORT;
 const app = express();
+
+// Log environment info
+console.log("🚀 Starting server...");
+console.log("📍 Environment:", process.env.NODE_ENV);
+console.log("🔌 Port:", PORT);
+console.log("🍪 Secure cookies:", process.env.NODE_ENV === "production");
 app.use(express.json());
 
 app.use(
   cors({
-    origin:
-      process.env.NODE_ENV === "development"
-        ? true
-        : ["https://pagebuilderhere.netlify.app"],
+    origin: function (origin, callback) {
+      console.log("🌐 CORS request from origin:", origin);
+
+      const allowedOrigins =
+        process.env.NODE_ENV === "development"
+          ? ["http://localhost:3000", "http://localhost:3001"]
+          : ["https://pagebuilderhere.netlify.app"];
+
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        console.log("✅ Origin allowed:", origin);
+        callback(null, true);
+      } else {
+        console.log("Allowed origins:", allowedOrigins);
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     methods: ["POST", "GET", "DELETE", "PUT", "OPTIONS"],
     credentials: true,
     allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
@@ -49,15 +70,20 @@ app.use(cookieParser());
 
 app.use(
   session({
-    secret: "secret",
+    secret:
+      process.env.SESSION_SECRET ||
+      "your-super-secret-key-change-this-in-production",
     resave: false,
     saveUninitialized: false,
+    name: "sessionId", // Custom session name
     cookie: {
       secure: process.env.NODE_ENV === "production", // true for HTTPS in production
       httpOnly: true,
-      maxAge: 1000 * 60 * 60 * 24,
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax", // 'none' for cross-site cookies in production
+      maxAge: 1000 * 60 * 60 * 24, // 24 hours
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      domain: process.env.NODE_ENV === "production" ? undefined : undefined, // Let browser handle domain
     },
+    proxy: process.env.NODE_ENV === "production", // Trust proxy in production
   })
 );
 
@@ -79,8 +105,12 @@ app.delete("/deletedata/:id", deleteDataItem);
 app.get("/bloglist", getAllURLs);
 
 app.get("/isAuthenticate", (req, res) => {
+  console.log("Session ID:", req.sessionID);
+  console.log("Session data:", req.session);
+  console.log("User data in session:", req.session.userData);
+
   if (req.session.userData) {
-    return res.json({ valid: true });
+    return res.json({ valid: true, user: req.session.userData });
   } else {
     return res.json({ valid: false });
   }
@@ -119,6 +149,21 @@ cron.schedule("0 8 * * *", async () => {
   } catch (error) {
     console.error("Error fetching users:", error);
   }
+});
+
+// Test session endpoint
+app.get("/test-session", (req, res) => {
+  if (!req.session.views) {
+    req.session.views = 0;
+  }
+  req.session.views++;
+
+  res.json({
+    message: "Session test",
+    sessionId: req.sessionID,
+    views: req.session.views,
+    userData: req.session.userData || null,
+  });
 });
 
 // Test route

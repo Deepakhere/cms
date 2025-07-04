@@ -5,32 +5,85 @@ import "./App.css";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-import Home from "./component/Home.jsx";
-import Login from "./component/Login.jsx";
-import Signup from "./component/Signup.jsx";
-import Sidepanel from "./component/Sidepanel.jsx";
-import Startpage from "./component/Startpage.jsx";
-import NorecordPage from "./component/NorecordPage.jsx";
-import ContentPage from "./component/ContentPage.jsx";
-import FileUpload from "./component/FileUpload.jsx";
-import AnchorListPage from "./component/AnchorListPage.jsx";
+import Home from "./pages/Home.jsx";
+import Login from "./pages/Login.jsx";
+import Signup from "./pages/Signup.jsx";
+import Sidepanel from "./pages/Sidepanel.jsx";
+import Startpage from "./pages/Startpage.jsx";
+import NorecordPage from "./pages/NorecordPage.jsx";
+import ContentPage from "./pages/ContentPage.jsx";
+import FileUpload from "./pages/FileUpload.jsx";
+import AnchorListPage from "./pages/AnchorListPage.jsx";
+import { AuthProvider } from "./context/AuthContext.js";
+import ProtectedRoute from "./components/ProtectedRoute.jsx";
 
 function App() {
   return (
     <div>
       <Router>
-        <ToastContainer />
-        <Routes>
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/home" element={<Home />} />
-          <Route path="/sidepanel" element={<Sidepanel />} />
-          <Route path="/startpage" element={<Startpage />} />
-          <Route path="/norecordpage" element={<NorecordPage />} />
-          <Route path="/contentpage" element={<ContentPage />} />
-          <Route path="/fileupload" element={<FileUpload />} />
-          <Route path="/" element={<AnchorListPage />} />
-        </Routes>
+        <AuthProvider>
+          <ToastContainer />
+          <Routes>
+            <Route path="/signup" element={<Signup />} />
+            <Route path="/login" element={<Login />} />
+            <Route
+              path="/home"
+              element={
+                <ProtectedRoute>
+                  <Home />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/sidepanel"
+              element={
+                <ProtectedRoute>
+                  <Sidepanel />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/startpage"
+              element={
+                <ProtectedRoute>
+                  <Startpage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/norecordpage"
+              element={
+                <ProtectedRoute>
+                  <NorecordPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/contentpage"
+              element={
+                <ProtectedRoute>
+                  <ContentPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/fileupload"
+              element={
+                <ProtectedRoute>
+                  <FileUpload />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/"
+              element={
+                <ProtectedRoute>
+                  <AnchorListPage />
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
+        </AuthProvider>
       </Router>
     </div>
   );
