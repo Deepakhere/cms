@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import Sidepanel from "./Sidepanel";
 import { Link } from "react-router-dom";
 import apiService from "../services/api";
+import { getGeneratePageUrl, logEnvironmentInfo } from "../utils/urlConfig";
 
 function AnchorListPage() {
   const [anchorData, setAnchorData] = useState([]);
@@ -10,6 +11,9 @@ function AnchorListPage() {
   // const [htmlPages, setHtmlPages] = useState([]);
 
   useEffect(() => {
+    // Log environment info for debugging
+    logEnvironmentInfo();
+
     setLoading(true);
     setError(null);
 
@@ -100,7 +104,10 @@ function AnchorListPage() {
               width: "100%",
             }}
           >
-            <div className="d-flex align-items-center justify-content-center" style={{width: "100%"}}>
+            <div
+              className="d-flex align-items-center justify-content-center"
+              style={{ width: "100%" }}
+            >
               <div className="me-3">
                 <svg
                   width="48"
@@ -204,12 +211,14 @@ function AnchorListPage() {
                   <div className="card">
                     <div className="card-body">
                       <h5 className="card-title">URL Name: {anchor.URL}</h5>
-                      <Link
+                      <a
                         style={{ textDecoration: "none" }}
-                        to={`https://pagebuilder-zjf0.onrender.com/generatepage/${anchor.URL}`}
+                        href={getGeneratePageUrl(anchor.URL)}
+                        target="_blank"
+                        rel="noopener noreferrer"
                       >
                         <p className="card-text">View Page</p>
-                      </Link>
+                      </a>
                     </div>
                   </div>
                 </div>

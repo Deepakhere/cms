@@ -21,17 +21,23 @@ export const AuthProvider = ({ children }) => {
       setIsLoading(true);
       const response = await apiService.auth.isAuthenticated();
 
-      if (response.data.valid) {
+      if (response.data && response.data.valid) {
         setIsAuthenticated(true);
         setUser(response.data.user || null);
+        console.log("✅ User authenticated:", response.data.user?.email);
       } else {
         setIsAuthenticated(false);
         setUser(null);
+        console.log("❌ User not authenticated");
       }
     } catch (error) {
       console.error("Authentication check failed:", error);
-      setIsAuthenticated(false);
-      setUser(null);
+      // Only set to false if it's a real authentication failure, not a network error
+      if (error.response && error.response.status === 401) {
+        setIsAuthenticated(false);
+        setUser(null);
+      }
+      // For network errors, keep current state to avoid unnecessary logouts
     } finally {
       setIsLoading(false);
     }
@@ -39,19 +45,33 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
+      console.log("🔐 Attempting login for:", email);
       const response = await apiService.auth.login({ email, password });
 
+      console.log("📡 Login response:", response.data);
+
       if (response.data === "Success") {
+        console.log("✅ Login successful, checking authentication...");
         setIsAuthenticated(true);
-        // Optionally fetch user data after successful login
+        // Fetch user data after successful login
         await checkAuthentication();
         return { success: true };
       } else {
+        console.log("❌ Login failed:", response.data);
         return { success: false, message: response.data };
       }
     } catch (error) {
-      console.error("Login failed:", error);
-      return { success: false, message: "Login failed. Please try again." };
+      console.error("❌ Login error:", error);
+      if (error.code === "ERR_NETWORK") {
+        return {
+          success: false,
+          message: "Network error. Please check your connection.",
+        };
+      }
+      return {
+        success: false,
+        message: error.response?.data || "Login failed. Please try again.",
+      };
     }
   };
 
