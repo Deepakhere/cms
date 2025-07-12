@@ -1,348 +1,530 @@
-import React, { useRef } from "react";
-import { toast } from "react-toastify";
-
-import Sidepanel from "./Sidepanel";
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import JoditEditor from "jodit-react";
-
+import { useNavigate, useLocation } from "react-router-dom";
+import { toast } from "react-toastify";
+import Sidepanel from "./Sidepanel";
 import apiService from "../services/api";
+import "../styles/Home.css";
+// Import debug utility (only in development)
+if (process.env.NODE_ENV === "development") {
+  import("../utils/apiDebug");
+}
 
 function Home() {
   const navigate = useNavigate();
-
-  // const [selectedFile, setSelectedFile] = useState();
   const [showModal, setShowModal] = useState(false);
-
   const [title, setTitle] = useState("");
   const [subtext, setSubtext] = useState("");
   const [url, setUrl] = useState("");
   const [publishDate, setPublishDate] = useState("");
   const [publishTime, setPublishTime] = useState("");
   const [bodyContent, setBodyContent] = useState("");
-
   const [file, setfile] = useState("");
   const [img, setImg] = useState("");
+  const [authorName, setAuthorName] = useState("");
+  const [showAuthor, setShowAuthor] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+  const [editId, setEditId] = useState(null);
+  const location = useLocation();
 
-  const [showAuthor, setShowAuthor] = useState("AuthorName");
+  const config = useMemo(
+    () => ({
+      readonly: false,
+      placeholder: "Start typing your content here...",
+      height: 300,
+      statusbar: false,
+      showCharsCounter: false,
+      showWordsCounter: false,
+      showXPathInStatusbar: false,
+      toolbarSticky: false,
+      askBeforePasteHTML: false,
+      askBeforePasteFromWord: false,
+      buttons: [
+        "bold",
+        "italic",
+        "underline",
+        "|",
+        "ul",
+        "ol",
+        "|",
+        "fontsize",
+        "|",
+        "link",
+        "|",
+        "undo",
+        "redo",
+      ],
+      removeButtons: ["source", "fullsize", "preview", "print"],
+      events: {},
+    }),
+    []
+  );
 
-  const [checked, setChecked] = useState(false);
-  const editor = useRef(null);
+  const handleEditorChange = useCallback((newContent) => {
+    setBodyContent(newContent);
+  }, []);
 
   const handleFile = (event) => {
     const getFiles = event.target.files[0];
-    setImg(URL.createObjectURL(getFiles));
-    setfile(getFiles);
+    if (getFiles) {
+      setImg(URL.createObjectURL(getFiles));
+      setfile(getFiles);
+    }
   };
 
-  const handlePublish = () => {
-    setShowModal(true);
-  };
-
-  const handleCloseModal = () => {
-    setShowModal(false);
-  };
-
-  const handlePublishSubmit = (event) => {
+  const handleSaveButton = (event) => {
     event.preventDefault();
-    console.log("Date:", publishDate);
-    console.log("Time:", publishTime);
-    setShowModal(false);
+
+    // Validate required fields
+    if (!title || !url) {
+      toast.error("Title and URL are required!");
+      return;
+    }
+
+    const formdata = new FormData();
+
+    // Only append image if file is selected
+    if (file) {
+      formdata.append("image", file);
+    }
+
+    formdata.append("title", title);
+    formdata.append("subtext", subtext);
+    formdata.append("bodyContent", bodyContent);
+    formdata.append("authorName", authorName);
+    formdata.append("showAuthor", showAuthor);
+    formdata.append("url", url);
+
+    // Choose API method based on edit mode
+    if (editMode) {
+      // For edit mode, try update first, fallback to save
+      apiService.pages
+        .update(editId, formdata)
+        .then((response) => {
+          toast.success("Page updated successfully!");
+        })
+        .catch((updateError) => {
+          console.log("Update endpoint not available, using save instead");
+          // Fallback to save method
+          apiService.pages
+            .save(formdata)
+            .then((response) => {
+              toast.success("Page saved successfully!");
+            })
+            .catch((saveError) => {
+              console.error("Both update and save failed:", saveError);
+              toast.error("Failed to save page. Please try again.");
+            });
+        });
+    } else {
+      // For create mode, use save
+      apiService.pages
+        .save(formdata)
+        .then((response) => {
+          toast.success("Page saved successfully!");
+        })
+        .catch((error) => {
+          toast.error("Failed to save page. Please try again.");
+        });
+    }
   };
 
   const handlePublishBtn = (event) => {
-    console.log("inside");
-    setShowModal(false);
-    toast.success("Data Saved Successfully");
-
     event.preventDefault();
+
+    // Validate required fields
+    if (!title || !url) {
+      toast.error("Title and URL are required!");
+      return;
+    }
+
+    setShowModal(false);
+
+    const formdata = new FormData();
+
+    // Only append image if file is selected
+    if (file) {
+      formdata.append("image", file);
+    }
+
+    formdata.append("title", title);
+    formdata.append("subtext", subtext);
+    formdata.append("url", url);
+    formdata.append("bodyContent", bodyContent);
+    formdata.append("authorName", authorName);
+    formdata.append("showAuthor", showAuthor);
+    formdata.append("publishDate", publishDate);
+    formdata.append("publishTime", publishTime);
+    formdata.append("isPublished", true);
+
     apiService.pages
-      .create({
-        title,
-        subtext,
-        url,
-        bodyContent,
-        publishDate,
-        publishTime,
-        checked,
-      })
+      .create(formdata)
       .then((result) => {
-        console.log(result);
+        toast.success("Page published successfully!");
       })
       .catch((err) => {
-        console.log(err);
-        toast.error("Failed to save data. Please try again.");
+        toast.error("Failed to publish page. Please try again.");
       });
   };
 
   useEffect(() => {
-    apiService.pages
-      .getAll()
-      .then((res) => {
-        if (res.data) {
-          setShowAuthor(res.data[0].createdBy);
+    // Set default author name (you can get this from user context/auth)
+    setAuthorName("Your Name"); // Default author name
+
+    // Check if we're in edit mode
+    const urlParams = new URLSearchParams(location.search);
+    const editPageId = urlParams.get("edit");
+
+    if (editPageId) {
+      setEditMode(true);
+      setEditId(editPageId);
+
+      // Load existing page data
+      const loadPageData = async () => {
+        try {
+          // Try to get all pages and find the specific one (fallback method)
+          const allPagesResponse = await apiService.pages.getAll();
+          const allPages = Array.isArray(allPagesResponse.data)
+            ? allPagesResponse.data
+            : [];
+          const targetPage = allPages.find((page) => page._id === editPageId);
+
+          if (!targetPage) {
+            throw new Error("Page not found");
+          }
+
+          const pageData = targetPage;
+          setTitle(pageData.title || "");
+          setSubtext(pageData.subtext || "");
+          setUrl(pageData.URL || "");
+          setBodyContent(pageData.bodyContent || "");
+          setAuthorName(
+            pageData.authorName || pageData.createdBy || "Your Name"
+          );
+          setShowAuthor(pageData.showAuthor || false);
+          setPublishDate(pageData.publishDate || "");
+          setPublishTime(pageData.publishTime || "");
+          // Handle image if exists
+          if (pageData.img) {
+            setImg(pageData.img);
+          }
+
+          toast.success("Page data loaded for editing");
+        } catch (error) {
+          console.error("Error loading page data:", error);
+          toast.error(
+            "Failed to load page data. You can still create a new page."
+          );
+          // Don't prevent the user from using the form, just show it empty
         }
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  }, []);
+      };
 
-  const handleSaveButton = (event) => {
-    event.preventDefault();
-    const formdata = new FormData();
-    formdata.append("image", file);
-    formdata.append("title", title);
-    formdata.append("subtext", subtext);
-    formdata.append("bodyContent", bodyContent);
-    formdata.append("showAuthor", showAuthor);
-    formdata.append("url", url);
-
-    apiService.pages
-      .save(formdata)
-      .then((response) => {
-        console.log(response.data);
-        toast.success("Page saved successfully!");
-      })
-      .catch((error) => {
-        console.error(error);
-        toast.error("Failed to save page. Please try again.");
-      });
-  };
-
-  const onCancel = () => {
-    navigate("/contentpage");
-  };
+      loadPageData();
+    }
+  }, [location.search]);
 
   return (
-    <div className="edit-page">
-      <Sidepanel />
-      <div className="navbar m-1">
-        <div className="nav-title">
-          <h3>Home Page</h3>
-        </div>
-        <div className="btn-list" style={{ float: "right" }}>
+    <div className="layout-container">
+      {/* Left Sidebar - spans full height */}
+      <div className="layout-sidebar">
+        <Sidepanel />
+      </div>
+
+      {/* Top Header - spans center and right */}
+      <div className="layout-header">
+        <h3 className="page-title">
+          {editMode ? "Edit Page" : "Create New Post"}
+        </h3>
+        <div className="header-actions">
           <button
-            type="submit"
-            className="dropdown-toggle"
-            id="dropdownMenuButton"
-            data-toggle="dropdown"
-            aria-haspopup="true"
-            aria-expanded="false"
-            style={{
-              marginRight: "20px",
-              border: "2px solid #C7D2FE",
-              borderRadius: "4px",
-              backgroundColor: "#FFFFFF",
-            }}
-          >
-            <img src="./images/dot.svg" alt="" />
-          </button>
-          <div className="dropdown-menu" aria-labelledby="dropdownMenuButton">
-            <span className="dropdown-item" href="#">
-              Preview
-            </span>
-            <span className="dropdown-item" href="#">
-              Delete
-            </span>
-          </div>
-          <button
-            className="nav-btn"
-            style={{
-              backgroundColor: "#FFFFFF",
-              color: "#000",
-              border: "2px solid #D1D1DB",
-            }}
-            onClick={onCancel}
+            type="button"
+            className="btn-cancel"
+            onClick={() => navigate("/contentpage")}
           >
             Cancel
           </button>
-
           <button
-            className="nav-btn"
-            style={{ backgroundColor: "#4F46E5", color: "#fff" }}
-            onClick={handleSaveButton}
+            type="button"
+            onClick={() => {
+              if (!title) {
+                toast.error("Please add a title to preview the page");
+                return;
+              }
+              // Open a preview modal or new window
+              const previewContent = `
+                <html>
+                  <head>
+                    <title>${title}</title>
+                    <style>
+                      body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+                      h1 { color: #333; }
+                      h2 { color: #666; }
+                      img { max-width: 100%; height: auto; }
+                    </style>
+                  </head>
+                  <body>
+                    <h1>${title}</h1>
+                    ${subtext ? `<h2>${subtext}</h2>` : ""}
+                    ${img ? `<img src="${img}" alt="Featured image" />` : ""}
+                    <div>${bodyContent || "<p>No content yet...</p>"}</div>
+                    ${
+                      showAuthor
+                        ? `<p><small>By: ${authorName}</small></p>`
+                        : ""
+                    }
+                  </body>
+                </html>
+              `;
+              const previewWindow = window.open("", "_blank");
+              previewWindow.document.write(previewContent);
+              previewWindow.document.close();
+            }}
+            className="btn-preview"
           >
-            Save
+            Preview
           </button>
-
+          <button type="button" className="btn-save" onClick={handleSaveButton}>
+            Save Draft
+          </button>
           <button
-            className="nav-btn"
-            onClick={handlePublish}
-            style={{ backgroundColor: "#059669", color: "#fff" }}
+            type="button"
+            className="btn-publish"
+            onClick={() => setShowModal(true)}
           >
             Publish
           </button>
         </div>
       </div>
 
-      <div className="body-container">
-        <div className="main-body">
-          <form>
-            <div className="form-group">
-              <label htmlFor="title">Title</label>
-              <input
-                type="text"
-                className="form-control"
-                placeholder="Your Page Title Here..."
-                style={{ fontFamily: "unfold" }}
-                onChange={(e) => setTitle(e.target.value)}
-                required
-              />
-            </div>
-            <div className="form-group mt-2">
-              <label htmlFor="subtitle">Sub Text</label>
-              <input
-                type="text"
-                className="form-control"
-                placeholder="Here Your SubText"
-                style={{ fontFamily: "unfold" }}
-                onChange={(e) => setSubtext(e.target.value)}
-              />
-            </div>
-          </form>
-        </div>
+      {/* Center Content Area */}
+      <div className="layout-center">
+        {/* Main Content Form */}
+        <div className="content-form">
+          {/* Title Input */}
+          <div className="form-group">
+            <label className="form-label">Title</label>
+            <input
+              type="text"
+              className="form-input"
+              placeholder="Enter post title..."
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
+          </div>
 
-        <div className="editor-body">
-          <p style={{ color: "grey", fontFamily: "unfold" }}>Body</p>
-          <div className="container">
-            <div className="row">
-              <div className="col-md-12">
-                {/* {content} */}
-                <JoditEditor
-                  ref={editor}
-                  value={bodyContent}
-                  onChange={(newContent) => setBodyContent(newContent)}
-                />
-              </div>
+          {/* Subtitle Input */}
+          <div className="form-group">
+            <label className="form-label">Subtitle</label>
+            <input
+              type="text"
+              className="subtitle-input"
+              placeholder="Enter post subtitle..."
+              value={subtext}
+              onChange={(e) => setSubtext(e.target.value)}
+            />
+          </div>
+
+          {/* Content Editor */}
+          <div className="content-editor-group">
+            <label className="content-editor-label">Content</label>
+            <div className="editor-wrapper">
+              <JoditEditor
+                key="content-editor"
+                value={bodyContent}
+                config={config}
+                onBlur={handleEditorChange}
+                onChange={() => {}} // Disable onChange to prevent infinite loops
+              />
             </div>
           </div>
-        </div>
 
-        <div className="attachment-container mt-2">
-          <p style={{ color: "grey", fontFamily: "unfold" }}>Attachments</p>
-
-          <div className="attachment-field">
+          {/* Image Upload Section */}
+          <div className="image-upload-group">
+            <label className="image-upload-label">
+              Featured Image (Optional)
+            </label>
             {file && (
-              <div className="file-container">
+              <div className="image-preview-container">
                 <img
                   src={img}
                   alt="Selected file preview"
-                  style={{ maxWidth: "100%", maxHeight: "80px" }}
+                  className="image-preview-img"
                 />
-              </div>
-            )}
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleFile}
-              className="choose-btn"
-            />
-          </div>
-        </div>
-      </div>
-
-      <div className="rightside-bar">
-        <div className="">
-          <h2>Configuration</h2>
-        </div>
-        <div className="">
-          <div class="form-group">
-            <label htmlFor="url" className="url">
-              URL
-            </label>
-            <input
-              type="text"
-              className="form-control"
-              id="url"
-              placeholder="Your Page Title Here..."
-              style={{ fontFamily: "unfold" }}
-              onChange={(e) => setUrl(e.target.value)}
-            />
-          </div>
-          <div className="form-group mt-4">
-            <label htmlFor="author">Author</label>
-            <input
-              type="text"
-              className="form-control"
-              id="author"
-              value={showAuthor}
-              style={{ fontFamily: "unfold" }}
-            />
-          </div>
-          <div className="form-check mt-2">
-            <input
-              type="checkbox"
-              className="form-check-input contentclass"
-              id="exampleCheck1"
-              checked={checked}
-              onChange={(e) => setChecked(e.target.checked)}
-            />
-            <label className="form-check-label" htmlFor="exampleCheck1">
-              Show Author
-            </label>
-          </div>
-        </div>
-      </div>
-
-      {showModal && (
-        <div className="modal">
-          <div className="modal-top">
-            <div className="modal-content">
-              <span className="close" onClick={handleCloseModal}>
-                &times;
-              </span>
-              <h2>Publish</h2>
-            </div>
-
-            <form onSubmit={handlePublishSubmit}>
-              <div className="form-group">
-                <label
-                  htmlFor="publishDate"
-                  style={{ marginLeft: "22px", marginTop: "10px" }}
-                >
-                  Publish Date:
-                </label>
-                <input
-                  type="date"
-                  id="publishDate"
-                  value={publishDate}
-                  onChange={(e) => setPublishDate(e.target.value)}
-                  className="input-field"
-                />
-              </div>
-              <div className="form-group">
-                <label
-                  htmlFor="publishTime"
-                  style={{ marginLeft: "22px", marginTop: "10px" }}
-                >
-                  Publish Time:
-                </label>
-                <input
-                  type="time"
-                  id="publishTime"
-                  value={publishTime}
-                  onChange={(e) => setPublishTime(e.target.value)}
-                  className="input-field"
-                />
-              </div>
-              <div className="buttons">
                 <button
                   type="button"
-                  className="cancel-btn"
-                  onClick={handleCloseModal}
+                  className="image-remove-overlay-btn"
+                  onClick={() => {
+                    setfile("");
+                    setImg("");
+                    // Reset the file input
+                    const fileInput =
+                      document.querySelector('input[type="file"]');
+                    if (fileInput) fileInput.value = "";
+                  }}
+                  title="Remove image"
                 >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="publish-btn"
-                  onClick={handlePublishBtn}
-                >
-                  Publish
+                  ×
                 </button>
               </div>
-            </form>
+            )}
+            <div className="file-input-wrapper">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleFile}
+                className="file-input-field"
+              />
+            </div>
+            {!file && (
+              <small className="file-status-no-file">
+                No image selected. Page will be saved without a featured image.
+              </small>
+            )}
+            {file && (
+              <small className="file-status-selected">
+                ✓ Image selected: {file.name}
+              </small>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Right Sidebar - URL and Author Settings */}
+      <div className="layout-right">
+        <div className="settings-section">
+          <h6 className="settings-heading">Page Settings</h6>
+
+          {/* URL Setting */}
+          <div className="settings-url-group">
+            <label className="settings-url-label">Page URL</label>
+            <input
+              type="text"
+              className="settings-url-input"
+              placeholder="/page-url"
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+            />
+            <small className="settings-url-help">
+              This will be the URL path for your page
+            </small>
+          </div>
+
+          {/* Author Settings */}
+          <div className="settings-author-group">
+            <label className="settings-author-label">Author Settings</label>
+
+            {/* Author Name Input */}
+            <div className="author-input-container">
+              <input
+                type="text"
+                id="authorName"
+                value={authorName}
+                onChange={(e) => setAuthorName(e.target.value)}
+                placeholder="Enter author name"
+                className="settings-input"
+                style={{ marginBottom: "8px" }}
+              />
+            </div>
+
+            {/* Show Author Checkbox */}
+            <div className="author-checkbox-container">
+              <input
+                type="checkbox"
+                id="showAuthor"
+                checked={showAuthor}
+                onChange={(e) => setShowAuthor(e.target.checked)}
+                style={{ marginRight: "8px" }}
+              />
+              <label htmlFor="showAuthor" className="author-checkbox-label">
+                Show author information
+              </label>
+            </div>
+
+            {/* Author Preview */}
+            {showAuthor && authorName && (
+              <div className="author-info-display">
+                <small className="author-info-text">
+                  Preview: By {authorName}
+                </small>
+              </div>
+            )}
+          </div>
+
+          {/* Publish Date/Time */}
+          <div className="settings-schedule-group">
+            <label className="settings-schedule-label">Publish Schedule</label>
+            <div className="schedule-date-container">
+              <label className="schedule-date-label">Date</label>
+              <input
+                type="date"
+                className="schedule-date-input"
+                value={publishDate}
+                onChange={(e) => setPublishDate(e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="schedule-time-label">Time</label>
+              <input
+                type="time"
+                className="schedule-time-input"
+                value={publishTime}
+                onChange={(e) => setPublishTime(e.target.value)}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Modal for Publishing */}
+      {showModal && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h4 className="modal-title">Publish Page</h4>
+            <div className="modal-details">
+              <h5 className="modal-details-heading">Page Details:</h5>
+              <p className="modal-details-item">
+                <strong>Title:</strong> {title || "No title"}
+              </p>
+              <p className="modal-details-item">
+                <strong>URL:</strong> {url || "No URL specified"}
+              </p>
+              <p className="modal-details-item">
+                <strong>Subtitle:</strong> {subtext || "No subtitle"}
+              </p>
+              <p className="modal-details-item">
+                <strong>Featured Image:</strong> {file ? "Yes" : "No"}
+              </p>
+              <p className="modal-details-item">
+                <strong>Author:</strong>{" "}
+                {showAuthor && authorName ? authorName : "Not shown"}
+              </p>
+              {publishDate && (
+                <p className="modal-details-item">
+                  <strong>Publish Date:</strong> {publishDate}{" "}
+                  {publishTime && `at ${publishTime}`}
+                </p>
+              )}
+            </div>
+            <p className="modal-confirmation-text">
+              Are you sure you want to publish this page? It will be available
+              at the specified URL.
+            </p>
+            <div className="modal-button-container">
+              <button
+                type="button"
+                className="btn-cancel modal-cancel-btn"
+                onClick={() => setShowModal(false)}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="btn-publish modal-publish-btn"
+                onClick={handlePublishBtn}
+              >
+                Publish
+              </button>
+            </div>
           </div>
         </div>
       )}

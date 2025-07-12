@@ -17,7 +17,7 @@ function ContentPage() {
       .then((res) => {
         console.log(res.data);
         const data = Array.isArray(res.data) ? res.data : [];
-        
+
         if (data.length === 0) {
           navigate("/norecordpage");
         }
@@ -109,7 +109,7 @@ function ContentPage() {
             </div>
 
             <div className="page-btn">
-              <Link to="/home">
+              <Link to="/create-page">
                 <button className="add-btn">+ Add Page</button>
               </Link>
             </div>
@@ -167,7 +167,8 @@ function ContentPage() {
                         <td>{formatDateTime(data.updatedAt)}</td>
                         <td
                           style={{
-                            color: data.status === "draft" ? "#D97706" : "#059669",
+                            color:
+                              data.status === "draft" ? "#D97706" : "#059669",
                             fontWeight: "bold",
                           }}
                         >

@@ -10,7 +10,7 @@ import getAllURLs from "../controller/bloglist.js";
 const router = express.Router();
 
 // Page management routes
-router.post("/homepagedata", homeController);
+router.post("/homepagedata", upload.single("image"), homeController);
 router.post("/pagesavedata", upload.single("image"), pageSaveData);
 router.get("/gethomedata", getHomePageData);
 router.get("/generatepage/:slug", generatePage);

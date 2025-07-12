@@ -32,25 +32,25 @@ function Sidepanel() {
           {/* TOP SECTION - 3 Icons */}
           <div className="top-navigation">
             {/* 1. Logo with Home Link */}
-            <div className={`svg-group ${isActive("/home") ? "active" : ""}`}>
-              <Link to="/home" title="Home">
+            <div className={`svg-group ${isActive("/") ? "active" : ""}`}>
+              <Link to="/" title="Home">
                 <svg
-                  width="32"
-                  height="32"
+                  width="24"
+                  height="24"
                   viewBox="0 0 24 24"
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
                 >
                   <path
                     d="M3 9L12 2L21 9V20C21 20.5304 20.7893 21.0391 20.4142 21.4142C20.0391 21.7893 19.5304 22 19 22H5C4.46957 22 3.96086 21.7893 3.58579 21.4142C3.21071 21.0391 3 20.5304 3 20V9Z"
-                    stroke={isActive("/home") ? "#4F46E5" : "#6C6B80"}
+                    stroke={isActive("/") ? "#4F46E5" : "#6C6B80"}
                     strokeWidth="2"
                     strokeLinecap="round"
                     strokeLinejoin="round"
                   />
                   <path
                     d="M9 22V12H15V22"
-                    stroke={isActive("/home") ? "#4F46E5" : "#6C6B80"}
+                    stroke={isActive("/") ? "#4F46E5" : "#6C6B80"}
                     strokeWidth="2"
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -60,18 +60,18 @@ function Sidepanel() {
             </div>
 
             {/* 2. Dashboard/Listing Icon */}
-            <div className={`svg-group ${isActive("/") ? "active" : ""}`}>
-              <Link to="/" title="Dashboard">
+            <div className={`svg-group ${isActive("/create-page") ? "active" : ""}`}>
+              <Link to="/create-page" title="Dashboard">
                 <svg
-                  width="32"
-                  height="32"
+                  width="24"
+                  height="24"
                   viewBox="0 0 24 24"
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
                 >
                   <path
                     d="M3 13H11V3H3V13ZM3 21H11V15H3V21ZM13 21H21V11H13V21ZM13 3V9H21V3H13Z"
-                    fill={isActive("/") ? "#4F46E5" : "#6C6B80"}
+                    fill={isActive("/create-page") ? "#4F46E5" : "#6C6B80"}
                   />
                 </svg>
               </Link>
@@ -85,8 +85,8 @@ function Sidepanel() {
             >
               <Link to="/contentpage" title="Pages">
                 <svg
-                  width="32"
-                  height="32"
+                  width="24"
+                  height="24"
                   viewBox="0 0 24 24"
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
@@ -116,8 +116,8 @@ function Sidepanel() {
             <div className="svg-group">
               <button title="Notifications">
                 <svg
-                  width="32"
-                  height="32"
+                  width="24"
+                  height="24"
                   viewBox="0 0 24 24"
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
@@ -144,8 +144,8 @@ function Sidepanel() {
             <div className="svg-group">
               <button title="Profile">
                 <svg
-                  width="32"
-                  height="32"
+                  width="24"
+                  height="24"
                   viewBox="0 0 24 24"
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
@@ -176,8 +176,8 @@ function Sidepanel() {
                 title="Logout"
               >
                 <svg
-                  width="32"
-                  height="32"
+                  width="24"
+                  height="24"
                   viewBox="0 0 24 24"
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"

@@ -16,7 +16,18 @@ const getHomePageData = async (req, res) => {
     }
 
     const data = await homePageDataSchema.find({ creatorId: userId });
-    console.log(data);
+    console.log("📊 Retrieved page data for user:", userId);
+    console.log("Number of pages found:", data.length);
+    console.log("Pages with URLs:", data.filter((page) => page.URL).length);
+    console.log(
+      "Sample data:",
+      data.slice(0, 2).map((page) => ({
+        title: page.title,
+        URL: page.URL,
+        status: page.status,
+        createdAt: page.createdAt,
+      }))
+    );
     res.json(data);
   } catch (err) {
     console.error("Error fetching home page data:", err);

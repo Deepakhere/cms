@@ -17,7 +17,7 @@ const sessionConfig = {
     secure: process.env.NODE_ENV === "production", // true for HTTPS in production
     httpOnly: true,
     maxAge: 1000 * 60 * 60 * 24, // 24 hours
-    sameSite: "lax", // Use 'lax' for development
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax", // Use 'none' for cross-site in production
     domain: undefined, // Let browser handle domain
   },
   proxy: true,

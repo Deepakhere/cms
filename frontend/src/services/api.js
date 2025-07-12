@@ -89,9 +89,17 @@ const apiService = {
   // Content/Page management endpoints
   pages: {
     getAll: () => apiClient.get("/api/gethomedata"),
-    create: (pageData) => apiClient.post("/api/homepagedata", pageData),
+    getById: (id) => apiClient.get(`/api/getpagedata/${id}`),
+    create: (formData) =>
+      apiClient.post("/api/homepagedata", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      }),
     save: (formData) =>
       apiClient.post("/api/pagesavedata", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      }),
+    update: (id, formData) =>
+      apiClient.put(`/api/updatepagedata/${id}`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       }),
     delete: (id) => apiClient.delete(`/api/deletedata/${id}`),
@@ -113,6 +121,25 @@ const apiService = {
   put: (url, data = {}, config = {}) => apiClient.put(url, data, config),
   patch: (url, data = {}, config = {}) => apiClient.patch(url, data, config),
   delete: (url, config = {}) => apiClient.delete(url, config),
+
+  // Debug helper to check available endpoints
+  debug: {
+    checkEndpoint: async (endpoint) => {
+      try {
+        const response = await apiClient.get(endpoint);
+        console.log(
+          `✅ Endpoint ${endpoint} is available with status: ${response.status}`
+        );
+        return true;
+      } catch (error) {
+        console.log(
+          `❌ Endpoint ${endpoint} is not available:`,
+          error.response?.status
+        );
+        return false;
+      }
+    },
+  },
 };
 
 export default apiService;

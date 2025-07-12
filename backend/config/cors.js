@@ -28,9 +28,11 @@ const corsConfig = {
     "Content-Type",
     "Authorization",
     "X-Requested-With",
-    "X-HTTP-Method-Override",
     "Accept",
+    "Origin",
+    "Access-Control-Allow-Headers",
   ],
+  exposedHeaders: ["set-cookie"],
 };
 
 export default cors(corsConfig);

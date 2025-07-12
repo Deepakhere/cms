@@ -17,7 +17,7 @@ function Startpage() {
           </div>
 
           <div className="frame-btn">
-            <Link to="/home">
+            <Link to="/create-page">
               <button className="add-btn">+Add Page</button>
             </Link>
           </div>

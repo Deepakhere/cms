@@ -5,8 +5,10 @@ import homePageDataSchema from "../models/home_schema_models.js";
 const generatePage = async (req, res) => {
   const { slug } = req.params;
 
+  const slugWithSlash = slug.startsWith("/") ? slug : `/${slug}`;
+
   try {
-    const pageData = await homePageDataSchema.findOne({ URL: slug });
+    const pageData = await homePageDataSchema.findOne({ URL: slugWithSlash });
     const contentPage = pageData;
 
     if (contentPage) {

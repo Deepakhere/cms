@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
 import Sidepanel from "./Sidepanel";
 import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
 import apiService from "../services/api";
 import { getGeneratePageUrl, logEnvironmentInfo } from "../utils/urlConfig";
+import "../styles/AnchorListPage.css";
 
 function AnchorListPage() {
   const [anchorData, setAnchorData] = useState([]);
@@ -20,24 +22,67 @@ function AnchorListPage() {
     apiService.pages
       .getAll()
       .then((res) => {
-        console.log("API Response:", res.data);
         // Ensure we always set an array
         if (Array.isArray(res.data)) {
-          setAnchorData(res.data);
+          const pagesWithUrls = res.data.filter(
+            (page) => page.URL && page.URL.trim() !== ""
+          );
+          setAnchorData(pagesWithUrls);
         } else {
-          console.warn("API response is not an array:", res.data);
           setAnchorData([]);
         }
       })
       .catch((error) => {
         console.error("Error fetching anchor data:", error);
-        setError("Failed to load data. Please try again.");
+        const errorMessage = "Failed to load pages. Please try again.";
+        setError(errorMessage);
+        toast.error(errorMessage);
         setAnchorData([]); // Set empty array on error
       })
       .finally(() => {
         setLoading(false);
       });
   }, []);
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  };
+
+  const getStats = () => {
+    const total = anchorData.length;
+    const published = anchorData.filter(
+      (page) => page.status === "published"
+    ).length;
+    const draft = anchorData.filter((page) => page.status === "draft").length;
+    return { total, published, draft };
+  };
+
+  const handleViewPage = async (pageUrl) => {
+    try {
+      const response = await fetch(getGeneratePageUrl(pageUrl));
+
+      if (response.ok) {
+        const data = await response.text(); // Get the HTML content
+        console.log(
+          "✅ Page data received from backend:",
+          data.substring(0, 200) + "..."
+        );
+
+        toast.success("Page data loaded successfully!");
+
+        window.open(getGeneratePageUrl(pageUrl), "_blank");
+      } else {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+    } catch (error) {
+      toast.error("Failed to load page data");
+    }
+  };
 
   // useEffect(() => {
   //   const paramsString = anchorData.map((anchor) => {
@@ -52,180 +97,169 @@ function AnchorListPage() {
   //   })
   // }, [anchorData]);
 
-  return (
-    <div>
-      <Sidepanel />
-      <div className="navbar">
-        <div className="" style={{ marginLeft: "14px" }}>
-          <div className="page-title">
-            <img
-              src="./images/Menu.svg"
-              alt=""
-              height={"28px"}
-              width={"28px"}
-            />
-            <p className="title">Pages</p>
-          </div>
-        </div>
+  const stats = getStats();
 
-        <div className="page-btn">
-          <Link to="/home">
-            <button className="add-btn">+ Add Page</button>
-          </Link>
-        </div>
+  return (
+    <div className="anchor-page-container">
+      <div className="anchor-sidebar">
+        <Sidepanel />
       </div>
 
-      <div className="container mt-4 customContainer">
-        {loading && (
-          <div className="text-center">
-            <div className="spinner-border text-primary" role="status">
-              <span className="visually-hidden">Loading...</span>
-            </div>
-            <p className="mt-2">Loading pages...</p>
-          </div>
-        )}
-
-        {error && (
-          <div className="alert alert-danger" role="alert">
-            {error}
-          </div>
-        )}
-
-        {!loading && !error && anchorData.length === 0 && (
-          <div
-            className="alert alert-warning border-0 shadow-sm"
-            role="alert"
-            style={{
-              backgroundColor: "#fff3cd",
-              borderLeft: "4px solid #ffc107",
-              borderRadius: "8px",
-              padding: "20px",
-              margin: "20px 0",
-              width: "100%",
-            }}
-          >
-            <div
-              className="d-flex align-items-center justify-content-center"
-              style={{ width: "100%" }}
-            >
-              <div className="me-3">
-                <svg
-                  width="48"
-                  height="48"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M12 2L2 7L12 12L22 7L12 2Z"
-                    stroke="#ffc107"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <path
-                    d="M2 17L12 22L22 17"
-                    stroke="#ffc107"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <path
-                    d="M2 12L12 17L22 12"
-                    stroke="#ffc107"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </div>
-              <div className="flex-grow-1">
-                <h5
-                  className="alert-heading mb-2"
-                  style={{ color: "#856404", fontWeight: "600" }}
-                >
-                  No Pages Found
-                </h5>
-                <p
-                  className="mb-3"
-                  style={{ color: "#856404", marginBottom: "0" }}
-                >
-                  You haven't created any pages yet. Start building your content
-                  by creating your first page.
-                </p>
-                <div className="mt-3">
-                  <Link
-                    to="/home"
-                    className="btn btn-warning me-2"
-                    style={{
-                      backgroundColor: "#ffc107",
-                      borderColor: "#ffc107",
-                      color: "#000",
-                      fontWeight: "500",
-                      padding: "8px 20px",
-                    }}
-                  >
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="me-2"
-                    >
-                      <path
-                        d="M12 5V19M5 12H19"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                    Create Your First Page
-                  </Link>
-                  <Link
-                    to="/contentpage"
-                    className="btn btn-outline-secondary"
-                    style={{
-                      borderColor: "#6c757d",
-                      color: "#ffffff",
-                      padding: "8px 20px",
-                    }}
-                  >
-                    View All Content
-                  </Link>
-                </div>
-              </div>
+      <div className="anchor-main">
+        {/* Header Section */}
+        <div className="anchor-header">
+          <div className="anchor-header-left">
+            <img
+              src="./images/Menu.svg"
+              alt="Pages"
+              className="anchor-header-icon"
+            />
+            <div>
+              <h1 className="anchor-header-title">All Pages</h1>
+              <p className="anchor-header-subtitle">
+                View and manage your live pages
+              </p>
             </div>
           </div>
-        )}
+          <div className="anchor-header-right">
+            <Link to="/create-page" className="anchor-add-btn">
+              + Add Page
+            </Link>
+          </div>
+        </div>
 
-        {!loading && !error && anchorData.length > 0 && (
-          <div className="row">
-            {anchorData.map(
-              (
-                anchor,
-                index // Added index as a fallback key
-              ) => (
-                <div key={index} className="col-md-4 mb-3">
-                  <div className="card">
-                    <div className="card-body">
-                      <h5 className="card-title">URL Name: {anchor.URL}</h5>
-                      <a
-                        style={{ textDecoration: "none" }}
-                        href={getGeneratePageUrl(anchor.URL)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <p className="card-text">View Page</p>
-                      </a>
+        {/* Content Section */}
+        <div className="anchor-content">
+          {/* Stats Section */}
+          {!loading && !error && anchorData.length > 0 && (
+            <div className="stats-section">
+              <div className="stat-card">
+                <h3 className="stat-number">{stats.total}</h3>
+                <p className="stat-label">Total Pages</p>
+              </div>
+              <div className="stat-card">
+                <h3 className="stat-number">{stats.published}</h3>
+                <p className="stat-label">Published</p>
+              </div>
+              <div className="stat-card">
+                <h3 className="stat-number">{stats.draft}</h3>
+                <p className="stat-label">Draft</p>
+              </div>
+            </div>
+          )}
+          {/* Loading State */}
+          {loading && (
+            <div className="loading-container">
+              <div className="loading-spinner"></div>
+              <p className="loading-text">Loading your pages...</p>
+            </div>
+          )}
+
+          {/* Error State */}
+          {error && (
+            <div className="error-container">
+              <h3 className="error-title">Error Loading Pages</h3>
+              <p>{error}</p>
+            </div>
+          )}
+
+          {/* Empty State */}
+          {!loading && !error && anchorData.length === 0 && (
+            <div className="empty-state">
+              <svg
+                className="empty-state-icon"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              <h3 className="empty-state-title">No Published Pages Found</h3>
+              <p className="empty-state-description">
+                It looks like you haven't published any pages yet. Create your
+                first page to get started!
+              </p>
+              <div className="empty-state-actions">
+                <Link to="/create-page" className="anchor-add-btn">
+                  + Create Your First Page
+                </Link>
+              </div>
+            </div>
+          )}
+
+          {/* Pages Grid */}
+          {!loading && !error && anchorData.length > 0 && (
+            <div className="cards-grid">
+              {anchorData.map((anchor, index) => (
+                <div key={anchor._id || index} className="page-card">
+                  <div className="page-card-header">
+                    <h3 className="page-card-title">
+                      {anchor.title || "Untitled Page"}
+                    </h3>
+                    <div className="page-card-url">
+                      {anchor.URL || "No URL"}
                     </div>
                   </div>
+
+                  <div className="page-card-body">
+                    <div className="page-card-meta">
+                      <div className="page-card-meta-item">
+                        <span className="page-card-meta-label">Created By</span>
+                        <span className="page-card-meta-value">
+                          {anchor.createdBy || "Unknown"}
+                        </span>
+                      </div>
+                      <div className="page-card-meta-item">
+                        <span className="page-card-meta-label">Created</span>
+                        <span className="page-card-meta-value">
+                          {formatDate(anchor.createdAt)}
+                        </span>
+                      </div>
+                      <div className="page-card-meta-item">
+                        <span className="page-card-meta-label">Status</span>
+                        <span
+                          className={`status-badge status-${
+                            anchor.status || "draft"
+                          }`}
+                        >
+                          {anchor.status || "draft"}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="page-card-footer">
+                    {anchor.URL ? (
+                      <button
+                        onClick={() => handleViewPage(anchor.URL)}
+                        className="page-card-btn page-card-btn-primary"
+                      >
+                        View Page
+                      </button>
+                    ) : (
+                      <span
+                        className="page-card-btn page-card-btn-secondary"
+                        style={{ opacity: 0.5 }}
+                      >
+                        No URL Available
+                      </span>
+                    )}
+                    <Link
+                      to="/create-page"
+                      state={{ editData: anchor }}
+                      className="page-card-btn page-card-btn-secondary"
+                    >
+                      Edit
+                    </Link>
+                  </div>
                 </div>
-              )
-            )}
-          </div>
-        )}
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
