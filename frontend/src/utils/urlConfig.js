@@ -7,7 +7,7 @@ const urlConfig = {
   production: {
     frontend: "https://pagebuilderhere.netlify.app",
     backend: "https://pagebuilder-zjf0.onrender.com",
-    generatePage: "https://pagebuilder-zjf0.onrender.com/generatepage",
+    generatePage: "https://pagebuilder-zjf0.onrender.com/api/generatepage",
   },
 };
 

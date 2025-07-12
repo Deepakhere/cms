@@ -213,3 +213,61 @@
   width: 24px;
   height: 24px;
 }
+
+/* User Profile Section */
+.user-profile-section .profile-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.user-profile-section .profile-button:hover {
+  transform: scale(1.1);
+  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.2);
+}
+
+.user-profile-image {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #e1e1e8;
+  transition: all 0.3s ease;
+}
+
+.user-profile-image:hover {
+  border-color: #4f46e5;
+}
+
+/* Fallback SVG styling when no profile image */
+.user-profile-section svg {
+  transition: all 0.3s ease;
+}
+
+.user-profile-section .profile-button:hover svg path {
+  stroke: #4f46e5;
+}
+
+/* Profile Loading Spinner */
+.profile-loading-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #e1e1e8;
+  border-top: 2px solid #4f46e5;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

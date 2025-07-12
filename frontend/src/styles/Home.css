@@ -360,128 +360,71 @@
   padding: 8px 16px;
 }
 
-/* JoditEditor Custom Styles */
-.jodit-container {
-  border: none !important;
+/* TinyMCE Custom Styles */
+.tox-tinymce {
+  border: 1px solid #d1d5db !important;
+  border-radius: 6px !important;
   box-shadow: none !important;
 }
 
-.jodit-toolbar {
+.tox-toolbar {
   background: #f8f9fa !important;
   border-bottom: 1px solid #e5e7eb !important;
   padding: 8px !important;
 }
 
-.jodit-workplace {
+.tox-edit-area {
   background: #ffffff !important;
 }
 
-.jodit-wysiwyg {
-  padding: 16px !important;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
-  font-size: 14px !important;
-  line-height: 1.6 !important;
-  color: #374151 !important;
+.tox-edit-area__iframe {
+  background: #ffffff !important;
 }
 
-.jodit-status-bar {
-  display: none !important;
+.tox .tox-toolbar__group {
+  border: none !important;
 }
 
-.jodit-statusbar {
-  display: none !important;
-}
-
-.jodit-workplace .jodit-status-bar,
-.jodit-workplace .jodit-statusbar {
-  display: none !important;
-}
-
-/* Remove resize handle and any footer elements */
-.jodit-workplace__resizer {
-  display: none !important;
-}
-
-.jodit-resizer {
-  display: none !important;
-}
-
-.jodit-workplace .jodit-workplace__resizer {
-  display: none !important;
-}
-
-/* Remove any bottom border or resize indicators */
-.jodit-workplace:after,
-.jodit-workplace:before {
-  display: none !important;
-}
-
-/* Hide any hover elements in footer area */
-.jodit-container .jodit-workplace .jodit-wysiwyg:after,
-.jodit-container .jodit-workplace .jodit-wysiwyg:before {
-  display: none !important;
-}
-
-/* Remove any resize cursors */
-.jodit-workplace,
-.jodit-wysiwyg {
-  resize: none !important;
-}
-
-/* Hide any status elements that might appear on hover */
-.jodit-container [class*="status"],
-.jodit-container [class*="resize"],
-.jodit-container [class*="footer"] {
-  display: none !important;
-}
-
-/* Remove Enter key indicator/button */
-.jodit-add-new-line,
-.jodit-add-new-line__button,
-.jodit-workplace .jodit-add-new-line,
-.jodit-workplace .jodit-add-new-line__button {
-  display: none !important;
-}
-
-/* Remove any floating enter indicators */
-.jodit-container .jodit-add-new-line,
-.jodit-container [class*="add-new-line"],
-.jodit-container [class*="enter"] {
-  display: none !important;
-}
-
-/* Hide any hover indicators */
-.jodit-wysiwyg .jodit-add-new-line,
-.jodit-wysiwyg [class*="add-new-line"],
-.jodit-wysiwyg [class*="enter-indicator"] {
-  display: none !important;
-}
-
-/* Remove any pseudo elements that might show enter indicators */
-.jodit-wysiwyg:hover:after,
-.jodit-wysiwyg:hover:before,
-.jodit-workplace:hover:after,
-.jodit-workplace:hover:before {
-  display: none !important;
-}
-
-.jodit-toolbar-button {
+.tox .tox-tbtn {
   margin: 2px !important;
   border-radius: 4px !important;
 }
 
-/* Additional rules to remove any enter/line indicators */
-.jodit-container * [class*="new-line"],
-.jodit-container * [class*="enter"],
-.jodit-container * [data-ref*="addNewLine"],
-.jodit-container * [data-ref*="enter"] {
+.tox .tox-tbtn:hover {
+  background: #e5e7eb !important;
+}
+
+.tox .tox-tbtn--enabled {
+  background: #4f46e5 !important;
+  color: white !important;
+}
+
+/* Remove status bar */
+.tox-statusbar {
   display: none !important;
 }
 
-/* Remove any floating UI elements */
-.jodit-ui-group[data-ref*="addNewLine"],
-.jodit-ui-button[data-ref*="addNewLine"] {
+/* Remove resize handle */
+.tox-resize-handle {
   display: none !important;
+}
+
+/* Custom scrollbar for editor */
+.tox-edit-area__iframe::-webkit-scrollbar {
+  width: 8px;
+}
+
+.tox-edit-area__iframe::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.tox-edit-area__iframe::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+.tox-edit-area__iframe::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
 }
 
 /* Additional Form Elements */
@@ -752,4 +695,107 @@
 
 .modal-publish-btn {
   padding: 8px 16px;
+}
+
+/* Loading Animation */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Layout Center Relative Position */
+.layout-center-relative {
+  position: relative;
+}
+
+/* Main Loading Overlay */
+.main-loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  border-radius: 8px;
+}
+
+.main-loading-spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid #e5e7eb;
+  border-top: 4px solid #4f46e5;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+/* Editor Loading Container */
+.editor-loading-container {
+  width: 100%;
+  height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  background-color: #f9fafb;
+}
+
+.editor-loading-spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid #e5e7eb;
+  border-top: 2px solid #4f46e5;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+/* Editor Fallback Textarea */
+.editor-fallback-textarea {
+  width: 100%;
+  height: 300px;
+  padding: 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  resize: vertical;
+  outline: none;
+  background-color: #ffffff;
+}
+
+.editor-fallback-textarea:focus {
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+/* Button Loading Spinner */
+.button-spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid transparent;
+  border-top: 2px solid currentColor;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+/* Button Disabled State */
+.btn-save:disabled,
+.btn-publish:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.btn-save:disabled:hover,
+.btn-publish:disabled:hover {
+  background-color: inherit;
+  border-color: inherit;
 }

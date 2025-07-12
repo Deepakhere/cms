@@ -34,6 +34,10 @@ const homePageSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    authorName: {
+      type: String,
+      default: "",
+    },
     publishTime: {
       type: String,
       default: `'YYYY-MM-DDTHH:mm:ss'`,

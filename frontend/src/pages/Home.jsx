@@ -1,14 +1,10 @@
-import React, { useState, useEffect, useMemo, useCallback } from "react";
-import JoditEditor from "jodit-react";
+import React, { useState, useEffect, useCallback } from "react";
+import { Editor } from "@tinymce/tinymce-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
 import Sidepanel from "./Sidepanel";
 import apiService from "../services/api";
 import "../styles/Home.css";
-// Import debug utility (only in development)
-if (process.env.NODE_ENV === "development") {
-  import("../utils/apiDebug");
-}
 
 function Home() {
   const navigate = useNavigate();
@@ -25,44 +21,82 @@ function Home() {
   const [showAuthor, setShowAuthor] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [editId, setEditId] = useState(null);
+  const [isLoadingEditData, setIsLoadingEditData] = useState(false);
+  const [isPublishing, setIsPublishing] = useState(false);
+  const [isSavingDraft, setIsSavingDraft] = useState(false);
   const location = useLocation();
 
-  const config = useMemo(
-    () => ({
-      readonly: false,
-      placeholder: "Start typing your content here...",
-      height: 300,
-      statusbar: false,
-      showCharsCounter: false,
-      showWordsCounter: false,
-      showXPathInStatusbar: false,
-      toolbarSticky: false,
-      askBeforePasteHTML: false,
-      askBeforePasteFromWord: false,
-      buttons: [
-        "bold",
-        "italic",
-        "underline",
-        "|",
-        "ul",
-        "ol",
-        "|",
-        "fontsize",
-        "|",
-        "link",
-        "|",
-        "undo",
-        "redo",
-      ],
-      removeButtons: ["source", "fullsize", "preview", "print"],
-      events: {},
-    }),
-    []
-  );
-
-  const handleEditorChange = useCallback((newContent) => {
-    setBodyContent(newContent);
+  // TinyMCE editor change handler
+  const handleEditorChange = useCallback((content) => {
+    setBodyContent(content);
   }, []);
+
+  // TinyMCE Editor component
+  const renderEditor = () => {
+    // Show loading while fetching edit data
+    if (isLoadingEditData) {
+      return (
+        <div className="editor-loading-container">
+          <div className="editor-loading-spinner"></div>
+        </div>
+      );
+    }
+
+    // TinyMCE Editor with error handling
+    try {
+      return (
+        <Editor
+          apiKey="rhxta1pv0hiyzwu3k112onsn9ur4c3rhc4052xxczkdcz9x5"
+          key={editMode ? `edit-${editId}` : "create-new"}
+          value={bodyContent || ""}
+          init={{
+            height: 300,
+            menubar: false,
+            plugins: [
+              "advlist",
+              "autolink",
+              "lists",
+              "link",
+              "charmap",
+              "anchor",
+              "searchreplace",
+              "visualblocks",
+              "code",
+              "insertdatetime",
+              "table",
+              "help",
+              "wordcount",
+            ],
+            toolbar:
+              "undo redo | blocks | bold italic underline | alignleft aligncenter alignright alignjustify | bullist numlist | link | removeformat | help",
+            content_style:
+              'body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 14px; line-height: 1.6; }',
+            placeholder: "Start typing your content here...",
+            branding: false,
+            statusbar: false,
+            resize: false,
+            setup: (editor) => {
+              editor.on("init", () => {
+                // Editor initialized successfully
+              });
+            },
+          }}
+          onEditorChange={handleEditorChange}
+        />
+      );
+    } catch (error) {
+      console.error("❌ TinyMCE Editor Error:", error);
+      toast.error("Editor failed to load.");
+      return (
+        <textarea
+          value={bodyContent || ""}
+          onChange={(e) => setBodyContent(e.target.value)}
+          placeholder="Start typing your content here..."
+          className="editor-fallback-textarea"
+        />
+      );
+    }
+  };
 
   const handleFile = (event) => {
     const getFiles = event.target.files[0];
@@ -72,7 +106,7 @@ function Home() {
     }
   };
 
-  const handleSaveButton = (event) => {
+  const handleSaveButton = async (event) => {
     event.preventDefault();
 
     // Validate required fields
@@ -81,55 +115,54 @@ function Home() {
       return;
     }
 
-    const formdata = new FormData();
+    setIsSavingDraft(true);
 
-    // Only append image if file is selected
-    if (file) {
-      formdata.append("image", file);
-    }
+    try {
+      const formdata = new FormData();
 
-    formdata.append("title", title);
-    formdata.append("subtext", subtext);
-    formdata.append("bodyContent", bodyContent);
-    formdata.append("authorName", authorName);
-    formdata.append("showAuthor", showAuthor);
-    formdata.append("url", url);
+      // Only append image if file is selected
+      if (file) {
+        formdata.append("image", file);
+      }
 
-    // Choose API method based on edit mode
-    if (editMode) {
-      // For edit mode, try update first, fallback to save
-      apiService.pages
-        .update(editId, formdata)
-        .then((response) => {
-          toast.success("Page updated successfully!");
-        })
-        .catch((updateError) => {
+      formdata.append("title", title);
+      formdata.append("subtext", subtext);
+      formdata.append("bodyContent", bodyContent);
+      formdata.append("authorName", authorName);
+      formdata.append("showAuthor", showAuthor);
+      formdata.append("url", url);
+      formdata.append("publishDate", publishDate);
+      formdata.append("publishTime", publishTime);
+      formdata.append("status", "draft"); // Mark as draft
+
+      // Choose API method based on edit mode
+      if (editMode) {
+        // For edit mode, try update first, fallback to save
+        try {
+          await apiService.pages.update(editId, formdata);
+          toast.success("Draft saved successfully!");
+        } catch (updateError) {
           console.log("Update endpoint not available, using save instead");
-          // Fallback to save method
-          apiService.pages
-            .save(formdata)
-            .then((response) => {
-              toast.success("Page saved successfully!");
-            })
-            .catch((saveError) => {
-              console.error("Both update and save failed:", saveError);
-              toast.error("Failed to save page. Please try again.");
-            });
-        });
-    } else {
-      // For create mode, use save
-      apiService.pages
-        .save(formdata)
-        .then((response) => {
-          toast.success("Page saved successfully!");
-        })
-        .catch((error) => {
-          toast.error("Failed to save page. Please try again.");
-        });
+          await apiService.pages.save(formdata);
+          toast.success("Draft saved successfully!");
+        }
+      } else {
+        // For create mode, use save
+        await apiService.pages.save(formdata);
+        toast.success("Draft saved successfully!");
+      }
+
+      // Navigate to content page after successful save
+      navigate("/contentpage");
+    } catch (error) {
+      console.error("Error saving draft:", error);
+      toast.error("Failed to save draft. Please try again.");
+    } finally {
+      setIsSavingDraft(false);
     }
   };
 
-  const handlePublishBtn = (event) => {
+  const handlePublishBtn = async (event) => {
     event.preventDefault();
 
     // Validate required fields
@@ -139,65 +172,98 @@ function Home() {
     }
 
     setShowModal(false);
+    setIsPublishing(true);
 
-    const formdata = new FormData();
+    try {
+      const formdata = new FormData();
 
-    // Only append image if file is selected
-    if (file) {
-      formdata.append("image", file);
-    }
+      // Only append image if file is selected
+      if (file) {
+        formdata.append("image", file);
+      }
 
-    formdata.append("title", title);
-    formdata.append("subtext", subtext);
-    formdata.append("url", url);
-    formdata.append("bodyContent", bodyContent);
-    formdata.append("authorName", authorName);
-    formdata.append("showAuthor", showAuthor);
-    formdata.append("publishDate", publishDate);
-    formdata.append("publishTime", publishTime);
-    formdata.append("isPublished", true);
+      formdata.append("title", title);
+      formdata.append("subtext", subtext);
+      formdata.append("url", url);
+      formdata.append("bodyContent", bodyContent);
+      formdata.append("authorName", authorName);
+      formdata.append("showAuthor", showAuthor);
+      formdata.append("publishDate", publishDate);
+      formdata.append("publishTime", publishTime);
 
-    apiService.pages
-      .create(formdata)
-      .then((result) => {
+      // Check if this is scheduled or immediate publish
+      const isScheduled = publishDate && publishTime;
+
+      if (isScheduled) {
+        formdata.append("status", "scheduled");
+        formdata.append("isPublished", false);
+      } else {
+        formdata.append("status", "published");
+        formdata.append("isPublished", true);
+      }
+
+      if (editMode && editId) {
+        // For edit mode, try update first, fallback to save
+        try {
+          await apiService.pages.update(editId, formdata);
+        } catch (updateError) {
+          console.log("Update endpoint not available, using save instead");
+          await apiService.pages.save(formdata);
+        }
+      } else {
+        // For create mode, use create or save
+        try {
+          await apiService.pages.create(formdata);
+        } catch (createError) {
+          console.log("Create endpoint not available, using save instead");
+          await apiService.pages.save(formdata);
+        }
+      }
+
+      // Show appropriate success message
+      if (isScheduled) {
+        toast.success("Your page is scheduled successfully!");
+      } else {
         toast.success("Page published successfully!");
-      })
-      .catch((err) => {
-        toast.error("Failed to publish page. Please try again.");
-      });
+      }
+
+      // Navigate to content page after successful publish/schedule
+      navigate("/contentpage");
+    } catch (error) {
+      console.error("Error publishing page:", error);
+      toast.error("Failed to publish page. Please try again.");
+    } finally {
+      setIsPublishing(false);
+    }
   };
 
   useEffect(() => {
-    // Set default author name (you can get this from user context/auth)
-    setAuthorName("Your Name"); // Default author name
-
     // Check if we're in edit mode
     const urlParams = new URLSearchParams(location.search);
     const editPageId = urlParams.get("edit");
 
     if (editPageId) {
+      // Entering edit mode
       setEditMode(true);
       setEditId(editPageId);
 
       // Load existing page data
       const loadPageData = async () => {
+        setIsLoadingEditData(true);
         try {
-          // Try to get all pages and find the specific one (fallback method)
-          const allPagesResponse = await apiService.pages.getAll();
-          const allPages = Array.isArray(allPagesResponse.data)
-            ? allPagesResponse.data
-            : [];
-          const targetPage = allPages.find((page) => page._id === editPageId);
+          // Get specific page by ID using the new endpoint
+          const pageResponse = await apiService.pages.getById(editPageId);
 
-          if (!targetPage) {
-            throw new Error("Page not found");
+          if (!pageResponse.data || !pageResponse.data.data) {
+            throw new Error(`Page not found with ID: ${editPageId}`);
           }
 
-          const pageData = targetPage;
+          const pageData = pageResponse.data.data;
+
+          // Set form data immediately
           setTitle(pageData.title || "");
           setSubtext(pageData.subtext || "");
           setUrl(pageData.URL || "");
-          setBodyContent(pageData.bodyContent || "");
           setAuthorName(
             pageData.authorName || pageData.createdBy || "Your Name"
           );
@@ -209,17 +275,38 @@ function Home() {
             setImg(pageData.img);
           }
 
-          toast.success("Page data loaded for editing");
+          // Set body content with a small delay to ensure editor is ready
+          setTimeout(() => {
+            setBodyContent(pageData.bodyContent || "");
+          }, 100);
         } catch (error) {
-          console.error("Error loading page data:", error);
           toast.error(
             "Failed to load page data. You can still create a new page."
           );
           // Don't prevent the user from using the form, just show it empty
+        } finally {
+          setIsLoadingEditData(false);
         }
       };
 
       loadPageData();
+    } else {
+      // Not in edit mode - reset to create mode
+      setEditMode(false);
+      setEditId(null);
+      setIsLoadingEditData(false);
+
+      // Reset form to defaults
+      setTitle("");
+      setSubtext("");
+      setUrl("");
+      setBodyContent("");
+      setAuthorName("Your Name");
+      setShowAuthor(false);
+      setPublishDate("");
+      setPublishTime("");
+      setImg("");
+      setfile("");
     }
   }, [location.search]);
 
@@ -283,8 +370,17 @@ function Home() {
           >
             Preview
           </button>
-          <button type="button" className="btn-save" onClick={handleSaveButton}>
-            Save Draft
+          <button
+            type="button"
+            className="btn-save"
+            onClick={handleSaveButton}
+            disabled={isSavingDraft}
+          >
+            {isSavingDraft ? (
+              <span className="button-spinner"></span>
+            ) : (
+              "Save Draft"
+            )}
           </button>
           <button
             type="button"
@@ -297,7 +393,14 @@ function Home() {
       </div>
 
       {/* Center Content Area */}
-      <div className="layout-center">
+      <div className="layout-center layout-center-relative">
+        {/* Loading overlay for edit mode */}
+        {isLoadingEditData && (
+          <div className="main-loading-overlay">
+            <div className="main-loading-spinner"></div>
+          </div>
+        )}
+
         {/* Main Content Form */}
         <div className="content-form">
           {/* Title Input */}
@@ -327,15 +430,7 @@ function Home() {
           {/* Content Editor */}
           <div className="content-editor-group">
             <label className="content-editor-label">Content</label>
-            <div className="editor-wrapper">
-              <JoditEditor
-                key="content-editor"
-                value={bodyContent}
-                config={config}
-                onBlur={handleEditorChange}
-                onChange={() => {}} // Disable onChange to prevent infinite loops
-              />
-            </div>
+            <div className="editor-wrapper">{renderEditor()}</div>
           </div>
 
           {/* Image Upload Section */}
@@ -521,8 +616,13 @@ function Home() {
                 type="button"
                 className="btn-publish modal-publish-btn"
                 onClick={handlePublishBtn}
+                disabled={isPublishing}
               >
-                Publish
+                {isPublishing ? (
+                  <span className="button-spinner"></span>
+                ) : (
+                  "Publish"
+                )}
               </button>
             </div>
           </div>

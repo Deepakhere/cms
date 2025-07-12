@@ -16,14 +16,11 @@ const config = {
   },
 };
 
-// Determine current environment
 const getCurrentEnvironment = () => {
-  // Check for explicit environment variable first
   if (process.env.REACT_APP_ENVIRONMENT) {
     return process.env.REACT_APP_ENVIRONMENT;
   }
 
-  // Default to production for npm start, development for npm run dev
   return process.env.NODE_ENV === "development" ? "development" : "production";
 };
 

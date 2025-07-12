@@ -14,6 +14,7 @@ const homePageData = (req, res) => {
       publishDate,
       checked,
       isPublished,
+      authorName,
     } = req.body;
 
     const userData = req.session.userData;
@@ -38,6 +39,7 @@ const homePageData = (req, res) => {
                 publishTime: publishTime,
                 publishDate: publishDate,
                 showAuthor: checked,
+                authorName: authorName || "",
                 isPublished: isPublished,
               })
               .then((result) => {

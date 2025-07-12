@@ -24,10 +24,14 @@ function AnchorListPage() {
       .then((res) => {
         // Ensure we always set an array
         if (Array.isArray(res.data)) {
-          const pagesWithUrls = res.data.filter(
-            (page) => page.URL && page.URL.trim() !== ""
+          // Filter for published pages only with URLs
+          const publishedPages = res.data.filter(
+            (page) =>
+              page.URL &&
+              page.URL.trim() !== "" &&
+              (page.isPublished === true || page.status === "published")
           );
-          setAnchorData(pagesWithUrls);
+          setAnchorData(publishedPages);
         } else {
           setAnchorData([]);
         }
@@ -73,8 +77,6 @@ function AnchorListPage() {
           data.substring(0, 200) + "..."
         );
 
-        toast.success("Page data loaded successfully!");
-
         window.open(getGeneratePageUrl(pageUrl), "_blank");
       } else {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -115,9 +117,9 @@ function AnchorListPage() {
               className="anchor-header-icon"
             />
             <div>
-              <h1 className="anchor-header-title">All Pages</h1>
+              <h1 className="anchor-header-title">Published Pages</h1>
               <p className="anchor-header-subtitle">
-                View and manage your live pages
+                View and access your live published pages
               </p>
             </div>
           </div>
@@ -135,7 +137,7 @@ function AnchorListPage() {
             <div className="stats-section">
               <div className="stat-card">
                 <h3 className="stat-number">{stats.total}</h3>
-                <p className="stat-label">Total Pages</p>
+                <p className="stat-label">Published Pages</p>
               </div>
               <div className="stat-card">
                 <h3 className="stat-number">{stats.published}</h3>
@@ -248,7 +250,7 @@ function AnchorListPage() {
                       </span>
                     )}
                     <Link
-                      to="/create-page"
+                      to={`/create-page/?edit=${anchor._id}`}
                       state={{ editData: anchor }}
                       className="page-card-btn page-card-btn-secondary"
                     >

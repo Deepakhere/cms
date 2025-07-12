@@ -4,7 +4,7 @@ import cloudinary from "./cloudsetup.js";
 
 const pageSaveData = (req, res) => {
   try {
-    const { title, subtext, bodyContent, url, showAuthor } = req.body;
+    const { title, subtext, bodyContent, url, showAuthor, authorName } = req.body;
 
     console.log("📝 Page Save Data Request:");
     console.log("Body:", req.body);
@@ -29,6 +29,7 @@ const pageSaveData = (req, res) => {
               files: fileUrl, // Will be null if no file uploaded
               URL: url,
               showAuthor: showAuthor === "true" || showAuthor === true,
+              authorName: authorName || "",
               status: "draft",
             })
             .then((result) => {

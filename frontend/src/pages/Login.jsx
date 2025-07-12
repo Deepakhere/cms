@@ -89,13 +89,13 @@ const Login = () => {
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>
-          <div class="form-check">
+          <div className="form-check">
             <input
               type="checkbox"
-              class="form-check-input contentclass"
+              className="form-check-input contentclass"
               id="exampleCheck1"
             />
-            <label class="form-check-label" for="exampleCheck1">
+            <label className="form-check-label" htmlFor="exampleCheck1">
               Remember me
             </label>
           </div>

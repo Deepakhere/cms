@@ -89,7 +89,7 @@ const apiService = {
   // Content/Page management endpoints
   pages: {
     getAll: () => apiClient.get("/api/gethomedata"),
-    getById: (id) => apiClient.get(`/api/getpagedata/${id}`),
+    getById: (id) => apiClient.get(`/api/page/${id}`),
     create: (formData) =>
       apiClient.post("/api/homepagedata", formData, {
         headers: { "Content-Type": "multipart/form-data" },
@@ -99,7 +99,7 @@ const apiService = {
         headers: { "Content-Type": "multipart/form-data" },
       }),
     update: (id, formData) =>
-      apiClient.put(`/api/updatepagedata/${id}`, formData, {
+      apiClient.put(`/api/page/${id}`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       }),
     delete: (id) => apiClient.delete(`/api/deletedata/${id}`),
